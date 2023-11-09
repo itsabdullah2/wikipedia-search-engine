@@ -1,4 +1,20 @@
-let resultsContainer = document.getElementsByClassName("container")[0]
+const resultsContainer = document.querySelector(".container");
+const inputElement = document.querySelector(".search input");
+
+function debounce(func, delay) {
+    let timeoutId;
+
+    return function() {
+        const context = this;
+        const args = arguments;
+
+        clearTimeout(timeoutId);
+
+        timeoutId = setTimeout(() => {
+            func.apply(context, args);
+        }, delay);
+    }
+}
 
 const validateInput = (el) => {
     if(el.value === ""){
@@ -8,7 +24,7 @@ const validateInput = (el) => {
     }
 }
 
-const generateResults = (searchValue, inputField) => {
+const generateResults = debounce((searchValue, inputField) => {
     fetch(
         "https://en.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=20&srsearch="
         + searchValue
@@ -33,5 +49,9 @@ const generateResults = (searchValue, inputField) => {
         if(inputField.value === ""){
             resultsContainer.innerHTML = "<p>Type something in the above search input</p>"
         }
-    })
-}
+    });
+}, 300);
+
+inputElement.addEventListener("input", () => {
+    validateInput(inputElement);
+})
